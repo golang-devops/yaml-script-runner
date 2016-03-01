@@ -6,10 +6,10 @@ import (
 )
 
 type nodeData struct {
-	ContinueOnFailure     bool `json:"continue_on_failure"`
-	InheritEnvironment    bool `json:"inherit_environment"`
-	AdditionalEnvironment []string
-	RunParallel           bool `json:"run_parallel"`
+	ContinueOnFailure     bool     `json:"continue_on_failure"`
+	InheritEnvironment    bool     `json:"inherit_environment"`
+	AdditionalEnvironment []string `json:"additional_environment"`
+	RunParallel           bool     `json:"run_parallel"`
 	Executor              []string
 	Steps                 []nodeDataStep
 }

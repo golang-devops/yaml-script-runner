@@ -13,7 +13,7 @@ Phase 1:
   continue_on_failure: true
   inherit_environment: true
   run_parallel: true
-  AdditionalEnvironment:
+  additional_environment:
     - MyEnviron1=Value1
   executor: ["sh", "-c"]
   steps:
