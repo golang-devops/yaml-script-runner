@@ -1,40 +1,29 @@
 package main
 
 import (
+	"fmt"
 	"github.com/ghodss/yaml"
-	"github.com/golang-devops/parsecommand"
 	"io/ioutil"
-	"os/exec"
+	"strings"
 )
 
+type phasesMap map[string]nodeData
+
 type setup struct {
-	ContinueIfStepFailed bool `json:"continue_if_step_failed"`
-	Executor             []string
-	Steps                []string
+	Phases    phasesMap
+	Variables map[string]string
 }
 
-func (s *setup) GetExecCommandsFromSteps() ([]*exec.Cmd, error) {
-	cmds := []*exec.Cmd{}
-
-	for _, step := range s.Steps {
-		splittedStep, err := parsecommand.Parse(step)
-		if err != nil {
-			return nil, err
+//TODO: Do we need a check the `ContinueOnFailure==true` when `RunParallel==true`. Because if continue is false we will probably exit while another command is still busy in parallel
+func (s *setup) Validate() error {
+	for _, node := range s.Phases {
+		for _, e := range node.AdditionalEnvironment {
+			if !strings.Contains(e, "=") {
+				return fmt.Errorf("Environment string must be in format key=value. Invalid string: '%s'", e)
+			}
 		}
-
-		allArgs := s.Executor
-		allArgs = append(allArgs, splittedStep...)
-
-		exe := allArgs[0]
-		args := []string{}
-		if len(allArgs) > 1 {
-			args = allArgs[1:]
-		}
-
-		cmds = append(cmds, exec.Command(exe, args...))
 	}
-
-	return cmds, nil
+	return nil
 }
 
 func ParseYamlFile(filePath string) (*setup, error) {
@@ -43,9 +32,25 @@ func ParseYamlFile(filePath string) (*setup, error) {
 		return nil, err
 	}
 
-	s := &setup{}
-	err = yaml.Unmarshal(yamlBytes, s)
-	if err != nil {
+	tmpPhases := make(phasesMap)
+	if err = yaml.Unmarshal(yamlBytes, &tmpPhases); err != nil {
+		return nil, err
+	}
+	deleteVariablesFromPhasesMap(tmpPhases)
+
+	tmpVariables := &struct {
+		Variables map[string]string
+	}{}
+	if err = yaml.Unmarshal(yamlBytes, tmpVariables); err != nil {
+		return nil, err
+	}
+
+	s := &setup{
+		tmpPhases,
+		tmpVariables.Variables,
+	}
+
+	if err = s.Validate(); err != nil {
 		return nil, err
 	}
 
