@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
+	"text/template"
 )
 
 func splitEnvironKeyValue(pair string) (string, string, error) {
@@ -71,7 +73,7 @@ func appendEnvironment(environ []string, toAppend ...string) ([]string, error) {
 	return newSlice, nil
 }
 
-func deleteVariablesFromPhasesMap(m phasesMap) {
+func deleteVariablesFromPhasesMap(m map[string]nodeData) {
 	for key, _ := range m {
 		if strings.EqualFold(key, "variables") {
 			delete(m, key)
@@ -86,4 +88,19 @@ func replaceVariables(s string, variables map[string]string) string {
 		returnStr = strings.Replace(returnStr, "$"+varName, varVal, -1)
 	}
 	return returnStr
+}
+
+func execTemplateToString(templateString string, data interface{}) (string, error) {
+	t, err := template.New("").Parse(templateString)
+	if err != nil {
+		return "", err
+	}
+
+	var doc bytes.Buffer
+	err = t.Execute(&doc, data)
+	if err != nil {
+		return "", err
+	}
+
+	return doc.String(), nil
 }

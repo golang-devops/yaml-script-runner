@@ -8,14 +8,16 @@ import (
 	"sync"
 )
 
-func runCommand(wg *sync.WaitGroup, commandIndex int, phase nodeData, cmd *exec.Cmd) {
+func runCommand(wg *sync.WaitGroup, commandIndex int, phase *nodeData, cmd *exec.Cmd) {
 	if wg != nil {
 		defer wg.Done()
 	}
 
+	commandName := strings.TrimSpace(fmt.Sprintf(`(INDEX %d) "%s" %+v`, commandIndex, cmd.Path, cmd.Args))
+
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		errMsg := fmt.Sprintf("ERROR (continue=%t): %s. OUT: %s\n", phase.ContinueOnFailure, err.Error(), string(out))
+		errMsg := fmt.Sprintf("ERROR (continue=%t): %s. OUT: %s. COMMAND: %s\n", phase.ContinueOnFailure, err.Error(), string(out), commandName)
 		if !phase.ContinueOnFailure {
 			logger.Fatallnf(errMsg)
 		} else {
@@ -24,14 +26,13 @@ func runCommand(wg *sync.WaitGroup, commandIndex int, phase nodeData, cmd *exec.
 		}
 	}
 
-	commandName := strings.TrimSpace(fmt.Sprintf(`(INDEX %d) "%s" %+v`, commandIndex, cmd.Path, cmd.Args))
 	logger.PrintCommandOutput(commandName, string(out))
 }
 
-func runPhase(setup *setup, phaseName string, phase nodeData) {
+func runPhase(setup *setup, phaseName string, phase *nodeData) {
 	var wg sync.WaitGroup
 
-	cmds, err := phase.GetExecCommandsFromSteps(setup.Variables)
+	cmds, err := phase.GetExecCommandsFromSteps(setup.StringVariablesOnly(), setup.Variables)
 	if err != nil {
 		logger.Fatallnf(err.Error())
 	}

@@ -6,17 +6,13 @@ import (
 
 type nodeDataStep string
 
-//TODO: Is the best practice to replace variables after splitting or before?
-func (n nodeDataStep) SplitAndReplaceVariables(variables map[string]string) ([]string, error) {
-	preReplacedVars := replaceVariables(string(n), variables)
-	splittedStep, err := parsecommand.Parse(preReplacedVars)
+func (n nodeDataStep) SplitAndReplaceVariables(stringVariables map[string]string, allVariables map[string]interface{}) ([]string, error) {
+	step := replaceVariables(string(n), stringVariables)
+
+	splittedStep, err := parsecommand.Parse(step)
 	if err != nil {
 		return nil, err
 	}
-
-	/*for i, _ := range splittedStep {
-		splittedStep[i] = replaceVariables(splittedStep[i], variables)
-	}*/
 
 	return splittedStep, nil
 }

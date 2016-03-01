@@ -8,6 +8,7 @@ Just a basic script runner to easily abort/continue on previous step failure
 ```
 variables:
   COMMAND_VAR: where python && echo Hallo
+  Machines: ["machine1", "machine2"]
 
 Phase 1: 
   continue_on_failure: true
@@ -19,6 +20,7 @@ Phase 1:
   steps:
     - where python
     - $COMMAND_VAR && echo test123
+    - 'repeat::Machines echo {{.}}'
 ```
 
 ### Install and run
