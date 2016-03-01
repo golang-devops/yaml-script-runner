@@ -7,7 +7,7 @@ Just a basic script runner to easily abort/continue on previous step failure
 
 ```
 variables:
-  COMMAND_VAR: where python && echo Hallo
+  COMMAND_VAR: which python & echo Hallo
   Machines: ["machine1", "machine2"]
 
 Phase 1: 
@@ -16,9 +16,9 @@ Phase 1:
   run_parallel: true
   additional_environment:
     - MyEnviron1=Value1
-  executor: ["sh", "-c"]
+  # executor: ["bash", "-C"] # This
   steps:
-    - where python
+    - which python
     - $COMMAND_VAR && echo test123
     - 'repeat::Machines echo {{.}}'
 ```
