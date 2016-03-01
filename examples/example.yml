@@ -1,0 +1,15 @@
+variables:
+  COMMAND_VAR: which python & echo Hallo
+  Machines: ["machine1", "machine2"]
+
+Phase 1: 
+  continue_on_failure: true
+  inherit_environment: true
+  run_parallel: true
+  additional_environment:
+    - MyEnviron1=Value1
+  # executor: ["bash", "-C"] # This does not currently work as expected on linux
+  steps:
+    - which python
+    - $COMMAND_VAR && echo test123
+    - 'repeat::Machines echo {{.}}'

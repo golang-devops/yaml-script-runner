@@ -8,10 +8,10 @@ import (
 )
 
 type nodeData struct {
-	ContinueOnFailure     bool     `json:"continue_on_failure"`
-	InheritEnvironment    bool     `json:"inherit_environment"`
-	AdditionalEnvironment []string `json:"additional_environment"`
-	RunParallel           bool     `json:"run_parallel"`
+	ContinueOnFailure     bool     `yaml:"continue_on_failure"`
+	InheritEnvironment    bool     `yaml:"inherit_environment"`
+	AdditionalEnvironment []string `yaml:"additional_environment"`
+	RunParallel           bool     `yaml:"run_parallel"`
 	Executor              []string
 	Steps                 []nodeDataStep
 }

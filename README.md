@@ -3,29 +3,17 @@ Just a basic script runner to easily abort/continue on previous step failure
 
 ## Quick Start
 
-### /path/to/my-setup.yaml:
-
-```
-variables:
-  COMMAND_VAR: which python & echo Hallo
-  Machines: ["machine1", "machine2"]
-
-Phase 1: 
-  continue_on_failure: true
-  inherit_environment: true
-  run_parallel: true
-  additional_environment:
-    - MyEnviron1=Value1
-  # executor: ["bash", "-C"] # This
-  steps:
-    - which python
-    - $COMMAND_VAR && echo test123
-    - 'repeat::Machines echo {{.}}'
-```
-
 ### Install and run
+
+For an example yaml file refer to [example.yml](examples/example.yml)
 
 ```
 go get -u github.com/golang-devops/yaml-script-runner
 yaml-script-runner "/path/to/my-setup.yaml"
 ```
+
+### Contributions
+
+Refer to the [Godeps.json](Godeps/Godeps.json) file for third-party packages used. But a special thanks to these repositories:
+- https://github.com/fatih/color - console colors
+- https://github.com/golang-devops/parsecommand - parsing the shell arguments from the single string

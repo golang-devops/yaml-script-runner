@@ -9,6 +9,8 @@ import (
 	"sync"
 )
 
+var BuildSha1Version string
+
 func checkError(err error, prefix string) {
 	if err != nil {
 		panic(fmt.Sprintf("%s %s", prefix, err.Error()))
@@ -123,6 +125,8 @@ func runPhase(setup *setup, phaseName string, phase *nodeData) {
 }
 
 func main() {
+	logger.Infolnf("Running version '%s'", BuildSha1Version)
+
 	if len(os.Args) < 2 {
 		logger.Fatallnf("The first command-line argument must be the YAML file path.")
 	}
@@ -134,7 +138,12 @@ func main() {
 		logger.Fatallnf(err.Error())
 	}
 
-	for name, phase := range setup.Phases {
-		runPhase(setup, name, phase)
+	for _, phase := range setup.Phases {
+		fmt.Println(phase.Name)
+	}
+	return
+
+	for _, phase := range setup.Phases {
+		runPhase(setup, phase.Name, phase.Data)
 	}
 }

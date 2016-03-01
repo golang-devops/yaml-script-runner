@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"gopkg.in/yaml.v2"
 	"os/exec"
 	"strings"
 	"text/template"
@@ -74,13 +75,15 @@ func appendEnvironment(environ []string, toAppend ...string) ([]string, error) {
 	return newSlice, nil
 }
 
-func deleteVariablesFromPhasesMap(m map[string]nodeData) {
-	for key, _ := range m {
-		if strings.EqualFold(key, "variables") {
-			delete(m, key)
-			return
+func deleteVariablesFromMapSlice(m yaml.MapSlice) yaml.MapSlice {
+	newSlice := yaml.MapSlice{}
+	for _, mi := range m {
+		if keyStr, ok := mi.Key.(string); ok && strings.EqualFold(keyStr, "variables") {
+			continue
 		}
+		newSlice = append(newSlice, mi)
 	}
+	return newSlice
 }
 
 func replaceVariables(s string, variables map[string]string) string {

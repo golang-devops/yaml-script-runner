@@ -2,6 +2,7 @@ package main
 
 import (
 	. "github.com/smartystreets/goconvey/convey"
+	"gopkg.in/yaml.v2"
 	"testing"
 )
 
@@ -56,33 +57,38 @@ func TestAppendEnvironment(t *testing.T) {
 	})
 }
 
-func _testsPhaseMapContains(m map[string]nodeData, s string) bool {
-	_, ok := m[s]
-	return ok
+func _testsMapSliceContains(m yaml.MapSlice, s string) bool {
+	for _, mi := range m {
+		keyStr, ok := mi.Key.(string)
+		if ok && keyStr == s {
+			return true
+		}
+	}
+	return false
 }
 
-func TestDeleteVariablesFromPhasesMap(t *testing.T) {
-	Convey("Delete variables from phases map", t, func() {
-		m1 := map[string]nodeData{"variables": nodeData{}, "variables1": nodeData{}, "myvariables": nodeData{}}
-		deleteVariablesFromPhasesMap(m1)
+func TestDeleteVariablesFromMapSlice(t *testing.T) {
+	Convey("Delete variables from map slice", t, func() {
+		m1 := yaml.MapSlice{{"variables", nodeData{}}, {"variables1", nodeData{}}, {"myvariables", nodeData{}}}
+		m1 = deleteVariablesFromMapSlice(m1)
 		So(len(m1), ShouldEqual, 2)
-		So(_testsPhaseMapContains(m1, "variables"), ShouldBeFalse)
-		So(_testsPhaseMapContains(m1, "variables1"), ShouldBeTrue)
-		So(_testsPhaseMapContains(m1, "myvariables"), ShouldBeTrue)
+		So(_testsMapSliceContains(m1, "variables"), ShouldBeFalse)
+		So(_testsMapSliceContains(m1, "variables1"), ShouldBeTrue)
+		So(_testsMapSliceContains(m1, "myvariables"), ShouldBeTrue)
 
-		m2 := map[string]nodeData{"VARIABLES": nodeData{}, "VARIABLES1": nodeData{}, "MYVARIABLES": nodeData{}}
-		deleteVariablesFromPhasesMap(m2)
+		m2 := yaml.MapSlice{{"VARIABLES", nodeData{}}, {"VARIABLES1", nodeData{}}, {"MYVARIABLES", nodeData{}}}
+		m2 = deleteVariablesFromMapSlice(m2)
 		So(len(m2), ShouldEqual, 2)
-		So(_testsPhaseMapContains(m2, "VARIABLES"), ShouldBeFalse)
-		So(_testsPhaseMapContains(m2, "VARIABLES1"), ShouldBeTrue)
-		So(_testsPhaseMapContains(m2, "MYVARIABLES"), ShouldBeTrue)
+		So(_testsMapSliceContains(m2, "VARIABLES"), ShouldBeFalse)
+		So(_testsMapSliceContains(m2, "VARIABLES1"), ShouldBeTrue)
+		So(_testsMapSliceContains(m2, "MYVARIABLES"), ShouldBeTrue)
 
-		m3 := map[string]nodeData{"Variables": nodeData{}, "Variables1": nodeData{}, "MyVariables": nodeData{}}
-		deleteVariablesFromPhasesMap(m3)
+		m3 := yaml.MapSlice{{"Variables", nodeData{}}, {"Variables1", nodeData{}}, {"MyVariables", nodeData{}}}
+		m3 = deleteVariablesFromMapSlice(m3)
 		So(len(m3), ShouldEqual, 2)
-		So(_testsPhaseMapContains(m3, "Variables"), ShouldBeFalse)
-		So(_testsPhaseMapContains(m3, "Variables1"), ShouldBeTrue)
-		So(_testsPhaseMapContains(m3, "MyVariables"), ShouldBeTrue)
+		So(_testsMapSliceContains(m3, "Variables"), ShouldBeFalse)
+		So(_testsMapSliceContains(m3, "Variables1"), ShouldBeTrue)
+		So(_testsMapSliceContains(m3, "MyVariables"), ShouldBeTrue)
 	})
 }
 
