@@ -56,28 +56,28 @@ func TestAppendEnvironment(t *testing.T) {
 	})
 }
 
-func _testsPhaseMapContains(m phasesMap, s string) bool {
+func _testsPhaseMapContains(m map[string]nodeData, s string) bool {
 	_, ok := m[s]
 	return ok
 }
 
 func TestDeleteVariablesFromPhasesMap(t *testing.T) {
 	Convey("Delete variables from phases map", t, func() {
-		m1 := phasesMap{"variables": nodeData{}, "variables1": nodeData{}, "myvariables": nodeData{}}
+		m1 := map[string]nodeData{"variables": nodeData{}, "variables1": nodeData{}, "myvariables": nodeData{}}
 		deleteVariablesFromPhasesMap(m1)
 		So(len(m1), ShouldEqual, 2)
 		So(_testsPhaseMapContains(m1, "variables"), ShouldBeFalse)
 		So(_testsPhaseMapContains(m1, "variables1"), ShouldBeTrue)
 		So(_testsPhaseMapContains(m1, "myvariables"), ShouldBeTrue)
 
-		m2 := phasesMap{"VARIABLES": nodeData{}, "VARIABLES1": nodeData{}, "MYVARIABLES": nodeData{}}
+		m2 := map[string]nodeData{"VARIABLES": nodeData{}, "VARIABLES1": nodeData{}, "MYVARIABLES": nodeData{}}
 		deleteVariablesFromPhasesMap(m2)
 		So(len(m2), ShouldEqual, 2)
 		So(_testsPhaseMapContains(m2, "VARIABLES"), ShouldBeFalse)
 		So(_testsPhaseMapContains(m2, "VARIABLES1"), ShouldBeTrue)
 		So(_testsPhaseMapContains(m2, "MYVARIABLES"), ShouldBeTrue)
 
-		m3 := phasesMap{"Variables": nodeData{}, "Variables1": nodeData{}, "MyVariables": nodeData{}}
+		m3 := map[string]nodeData{"Variables": nodeData{}, "Variables1": nodeData{}, "MyVariables": nodeData{}}
 		deleteVariablesFromPhasesMap(m3)
 		So(len(m3), ShouldEqual, 2)
 		So(_testsPhaseMapContains(m3, "Variables"), ShouldBeFalse)
