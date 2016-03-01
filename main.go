@@ -57,7 +57,7 @@ func runCommand(wg *sync.WaitGroup, resultCollector *ResultCollector, commandInd
 		for stdoutScanner.Scan() {
 			txt := cleanFeedbackLine(stdoutScanner.Text())
 			outLines = append(outLines, txt)
-			logger.Infolnf("COMMAND %d STDOUT: %s", commandIndex, txt)
+			logger.Tracelnf("COMMAND %d STDOUT: %s", commandIndex, txt)
 		}
 	}()
 
@@ -99,7 +99,7 @@ func runPhase(setup *setup, phaseName string, phase *nodeData) {
 
 	logger.Infolnf("Running step %s", phaseName)
 	for ind, c := range cmds {
-		logger.Infolnf(strings.TrimSpace(fmt.Sprintf(`INDEX %d = %s`, ind, execCommandToDisplayString(c))))
+		logger.Tracelnf(strings.TrimSpace(fmt.Sprintf(`INDEX %d = %s`, ind, execCommandToDisplayString(c))))
 
 		var wgToUse *sync.WaitGroup = nil
 		if phase.RunParallel {
@@ -137,11 +137,6 @@ func main() {
 	if err != nil {
 		logger.Fatallnf(err.Error())
 	}
-
-	for _, phase := range setup.Phases {
-		fmt.Println(phase.Name)
-	}
-	return
 
 	for _, phase := range setup.Phases {
 		runPhase(setup, phase.Name, phase.Data)
