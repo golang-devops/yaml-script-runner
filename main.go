@@ -45,9 +45,10 @@ func runPhase(setup *setup, phaseName string, phase nodeData) {
 		var wgToUse *sync.WaitGroup = nil
 		if phase.RunParallel {
 			wgToUse = &wg
+			go runCommand(wgToUse, ind, phase, c)
+		} else {
+			runCommand(wgToUse, ind, phase, c)
 		}
-
-		go runCommand(wgToUse, ind, phase, c)
 	}
 
 	if phase.RunParallel {
