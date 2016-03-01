@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"os/exec"
 	"strings"
 	"text/template"
 )
@@ -103,4 +104,12 @@ func execTemplateToString(templateString string, data interface{}) (string, erro
 	}
 
 	return doc.String(), nil
+}
+
+func execCommandToDisplayString(cmd *exec.Cmd) string {
+	/*
+		The cmd.Args include the executable too
+		 return strings.TrimSpace(fmt.Sprintf(`%s %+v`, cmd.Path, cmd.Args))
+	*/
+	return strings.TrimSpace(fmt.Sprintf(`%+v`, cmd.Args))
 }

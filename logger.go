@@ -39,26 +39,27 @@ type Logger struct {
 }
 
 func (l *Logger) Tracelnf(format string, args ...interface{}) {
-	l.trace.Println(l.colorTraceSprintfFunc(format+"\n", args...))
-}
-func (l *Logger) Infolnf(format string, args ...interface{}) {
-	l.info.Println(l.colorInfoSprintfFunc(format+"\n", args...))
-}
-func (l *Logger) Warninglnf(format string, args ...interface{}) {
-	l.warning.Println(l.colorWarningSprintfFunc(format+"\n", args...))
-}
-func (l *Logger) Errorlnf(format string, args ...interface{}) {
-	l.err.Println(l.colorErrSprintfFunc(format+"\n", args...))
-}
-func (l *Logger) Fatallnf(format string, args ...interface{}) {
-	l.err.Fatalln(l.colorErrSprintfFunc(format+"\n", args...))
-}
-
-func (l *Logger) PrintCommandOutput(commandName string, output string) {
 	l.Lock()
 	defer l.Unlock()
-
-	l.Infolnf("[BEGIN OUTPUT of %s]", commandName)
-	color.New(color.FgHiCyan).Println(string(output))
-	l.Infolnf("[END OUTPUT of %s]", commandName)
+	l.trace.Println(l.colorTraceSprintfFunc(format, args...))
+}
+func (l *Logger) Infolnf(format string, args ...interface{}) {
+	l.Lock()
+	defer l.Unlock()
+	l.info.Println(l.colorInfoSprintfFunc(format, args...))
+}
+func (l *Logger) Warninglnf(format string, args ...interface{}) {
+	l.Lock()
+	defer l.Unlock()
+	l.warning.Println(l.colorWarningSprintfFunc(format, args...))
+}
+func (l *Logger) Errorlnf(format string, args ...interface{}) {
+	l.Lock()
+	defer l.Unlock()
+	l.err.Println(l.colorErrSprintfFunc(format, args...))
+}
+func (l *Logger) Fatallnf(format string, args ...interface{}) {
+	l.Lock()
+	defer l.Unlock()
+	l.err.Fatalln(l.colorErrSprintfFunc(format, args...))
 }

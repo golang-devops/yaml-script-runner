@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
@@ -8,29 +9,82 @@ import (
 	"sync"
 )
 
-func runCommand(wg *sync.WaitGroup, commandIndex int, phase *nodeData, cmd *exec.Cmd) {
+func checkError(err error, prefix string) {
+	if err != nil {
+		panic(fmt.Sprintf("%s %s", prefix, err.Error()))
+	}
+}
+
+func cleanFeedbackLine(s string) (out string) {
+	out = s
+	out = strings.TrimSpace(out)
+	out = strings.Replace(out, "\r", "", -1)
+	out = strings.Replace(out, "\n", "\\n", -1)
+	return
+}
+
+func runCommand(wg *sync.WaitGroup, resultCollector *ResultCollector, commandIndex int, phase *nodeData, cmd *exec.Cmd) {
 	if wg != nil {
 		defer wg.Done()
 	}
 
-	commandName := strings.TrimSpace(fmt.Sprintf(`(INDEX %d) "%s" %+v`, commandIndex, cmd.Path, cmd.Args))
+	defer func() {
+		if r := recover(); r != nil {
+			errMsg := fmt.Sprintf("%s", r)
+			if !phase.ContinueOnFailure {
+				logger.Fatallnf(errMsg)
+			} else {
+				logger.Errorlnf(errMsg)
+			}
 
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		errMsg := fmt.Sprintf("ERROR (continue=%t): %s. OUT: %s. COMMAND: %s\n", phase.ContinueOnFailure, err.Error(), string(out), commandName)
-		if !phase.ContinueOnFailure {
-			logger.Fatallnf(errMsg)
+			resultCollector.AppendResult(&result{Cmd: cmd, Successful: false})
 		} else {
-			logger.Errorlnf(errMsg)
-			return
+			resultCollector.AppendResult(&result{Cmd: cmd, Successful: true})
 		}
-	}
+	}()
 
-	logger.PrintCommandOutput(commandName, string(out))
+	stdout, err := cmd.StdoutPipe()
+	checkError(err, "cmd.StdoutPipe")
+
+	stderr, err := cmd.StderrPipe()
+	checkError(err, "cmd.StderrPipe")
+
+	outLines := []string{}
+	stdoutScanner := bufio.NewScanner(stdout)
+	go func() {
+		for stdoutScanner.Scan() {
+			txt := cleanFeedbackLine(stdoutScanner.Text())
+			outLines = append(outLines, txt)
+			logger.Infolnf("COMMAND %d STDOUT: %s", commandIndex, txt)
+		}
+	}()
+
+	errLines := []string{}
+	stderrScanner := bufio.NewScanner(stderr)
+	go func() {
+		for stderrScanner.Scan() {
+			txt := cleanFeedbackLine(stderrScanner.Text())
+			errLines = append(errLines, txt)
+			logger.Warninglnf("COMMAND %d STDERR: %s", commandIndex, txt)
+		}
+	}()
+
+	err = cmd.Start()
+	checkError(err, "cmd.Start")
+
+	err = cmd.Wait()
+	if err != nil {
+		newErr := fmt.Errorf("%s - lines: %s", err.Error(), strings.Join(errLines, "\\n"))
+		outCombined := cleanFeedbackLine(strings.Join(outLines, "\n"))
+
+		errMsg := fmt.Sprintf("FAILED COMMAND %d. Continue: %t. ERROR: %s. OUT: %s", commandIndex, phase.ContinueOnFailure, newErr.Error(), outCombined)
+		panic(errMsg)
+	}
 }
 
 func runPhase(setup *setup, phaseName string, phase *nodeData) {
 	var wg sync.WaitGroup
+	resultCollector := &ResultCollector{}
 
 	cmds, err := phase.GetExecCommandsFromSteps(setup.StringVariablesOnly(), setup.Variables)
 	if err != nil {
@@ -43,17 +97,28 @@ func runPhase(setup *setup, phaseName string, phase *nodeData) {
 
 	logger.Infolnf("Running step %s", phaseName)
 	for ind, c := range cmds {
+		logger.Infolnf(strings.TrimSpace(fmt.Sprintf(`INDEX %d = %s`, ind, execCommandToDisplayString(c))))
+
 		var wgToUse *sync.WaitGroup = nil
 		if phase.RunParallel {
 			wgToUse = &wg
-			go runCommand(wgToUse, ind, phase, c)
+			go runCommand(wgToUse, resultCollector, ind, phase, c)
 		} else {
-			runCommand(wgToUse, ind, phase, c)
+			runCommand(wgToUse, resultCollector, ind, phase, c)
 		}
 	}
 
 	if phase.RunParallel {
 		wg.Wait()
+	}
+
+	if resultCollector.FailedCount() == 0 {
+		logger.Infolnf("There were no failures - %d/%d successful", resultCollector.SuccessCount(), resultCollector.TotalCount())
+	} else {
+		logger.Errorlnf("There were %d/%d failures: ", resultCollector.FailedCount(), resultCollector.TotalCount())
+		for _, failure := range resultCollector.FailedDisplayList() {
+			logger.Errorlnf("- %s", failure)
+		}
 	}
 }
 
