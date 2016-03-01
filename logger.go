@@ -15,7 +15,7 @@ func NewLogger(traceHandle, infoHandle, warningHandle, errorHandle io.Writer) *L
 		colorTraceSprintfFunc:   color.New().SprintfFunc(),
 		colorInfoSprintfFunc:    color.New(color.FgHiGreen).SprintfFunc(),
 		colorWarningSprintfFunc: color.New(color.FgHiYellow).SprintfFunc(),
-		colorErrSprintfFunc:     color.New(color.FgRed).SprintfFunc(),
+		colorErrSprintfFunc:     color.New(color.FgHiRed).SprintfFunc(),
 
 		trace:   log.New(traceHandle, "[T] ", log.Ldate|log.Ltime /*|log.Lshortfile*/),
 		info:    log.New(infoHandle, "[I] ", log.Ldate|log.Ltime /*|log.Lshortfile*/),
