@@ -17,10 +17,10 @@ func NewLogger(traceHandle, infoHandle, warningHandle, errorHandle io.Writer) *L
 		colorWarningSprintfFunc: color.New(color.FgHiYellow).SprintfFunc(),
 		colorErrSprintfFunc:     color.New(color.FgRed).SprintfFunc(),
 
-		trace:   log.New(traceHandle, "[T] ", log.Ldate|log.Ltime|log.Lshortfile),
-		info:    log.New(infoHandle, "[I] ", log.Ldate|log.Ltime|log.Lshortfile),
-		warning: log.New(warningHandle, "[W] ", log.Ldate|log.Ltime|log.Lshortfile),
-		err:     log.New(errorHandle, "[E] ", log.Ldate|log.Ltime|log.Lshortfile),
+		trace:   log.New(traceHandle, "[T] ", log.Ldate|log.Ltime /*|log.Lshortfile*/),
+		info:    log.New(infoHandle, "[I] ", log.Ldate|log.Ltime /*|log.Lshortfile*/),
+		warning: log.New(warningHandle, "[W] ", log.Ldate|log.Ltime /*|log.Lshortfile*/),
+		err:     log.New(errorHandle, "[E] ", log.Ldate|log.Ltime /*|log.Lshortfile*/),
 	}
 }
 
