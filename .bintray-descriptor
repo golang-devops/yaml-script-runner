@@ -1,4 +1,4 @@
-{
+/*{
     "package": {
         "name": "yaml-script-runner",
         "repo": "generic",
@@ -31,4 +31,4 @@
         {"includePattern": "dist/(.*)", "uploadPattern": "dist/$1"}
         ],
     "publish": true
-}
+}*/
