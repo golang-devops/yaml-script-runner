@@ -43,7 +43,7 @@ echo For a full list of supported OS-ARCH look at list in https://github.com/gol
 echo Your input OS = "$os" and ARCH = "$arch"
 echo This is an install script for yaml-script-runner version $version
 
-URL=https://github.com/golang-devops/yaml-script-runner/releases/download/$version/$os_$arch_yaml-script-runner
+URL=https://github.com/golang-devops/yaml-script-runner/releases/download/$version/${os}_${arch}_yaml-script-runner
 
 echo Now fetching binary at url $URL
 wget $URL -O /usr/local/bin/yaml-script-runner
