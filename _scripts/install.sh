@@ -1,11 +1,11 @@
 #!/bin/sh
 
-VERSION=v0.3
 allowed_os=( "darwin" "freebsd" "linux" "netbsd" "openbsd" )
 allowed_arch=( "386" "amd64" )
  
-os=$1
-arch=$2
+version=$1
+os=$2
+arch=$3
  
 ## Do not validate for now, otherwise we might prevent a download that actually exists if this script is old
 # valid_os=0
@@ -41,9 +41,9 @@ echo Probable list of ARCH is ${allowed_arch[@]}
 echo For a full list of supported OS-ARCH look at list in https://github.com/golang-devops/yaml-script-runner/releases/latest
 
 echo Your input OS = "$os" and ARCH = "$arch"
-echo This is an install script for yaml-script-runner version $VERSION
+echo This is an install script for yaml-script-runner version $version
 
-URL=https://github.com/golang-devops/yaml-script-runner/releases/download/$VERSION/$os_$arch_yaml-script-runner
+URL=https://github.com/golang-devops/yaml-script-runner/releases/download/$version/$os_$arch_yaml-script-runner
 
 echo Now fetching binary at url $URL
 wget $URL -O /usr/local/bin/yaml-script-runner

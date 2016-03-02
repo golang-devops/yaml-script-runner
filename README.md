@@ -7,7 +7,7 @@ Just a basic script runner to easily abort/continue on previous step failure
 
 #### Install on linux with curl script
 
-Ensure first that the `MY_OS` and `MY_ARCH` variables suit your system. The script does not validate the arguments but just print out a probable list.
+Ensure first that the `MY_OS`, `MY_ARCH` and `VER` variables suit your system. The script does not validate the arguments but just print out a probable list.
 
 This list is directly based on the available download files found here: https://github.com/golang-devops/yaml-script-runner/releases/latest.
 
@@ -15,7 +15,8 @@ This list is directly based on the available download files found here: https://
 ```
 MY_OS=linux
 MY_ARCH=amd64
-curl -s https://raw.githubusercontent.com/golang-devops/yaml-script-runner/master/_scripts/install.sh | sudo bash /dev/stdin $MY_OS $MY_ARCH
+VER=v0.4
+curl -s https://raw.githubusercontent.com/golang-devops/yaml-script-runner/master/_scripts/install.sh | sudo bash /dev/stdin $VER $MY_OS $MY_ARCH
 ```
 
 #### Install from source (golang must be installed)
